@@ -27,21 +27,23 @@ class OpenSearch extends BaseModule
 	{
 		$hostname = DI::baseUrl()->getHost();
 		$baseUrl  = (string)DI::baseUrl();
+		$namespaces = [
+			''    => 'http://a9.com/-/spec/opensearch/1.1',
+			'moz' => 'http://www.mozilla.org/2006/browser/search/',
+		];
 
 		/** @var DOMDocument $xml */
 		XML::fromArray([
 			'OpenSearchDescription' => [
-				'@attributes' => [
-					'xmlns' => 'http://a9.com/-/spec/opensearch/1.1',
-				],
 				'ShortName'      => "Friendica $hostname",
 				'Description'    => "Search in Friendica $hostname",
 				'Contact'        => 'https://github.com/friendica/friendica/issues',
 				'InputEncoding'  => 'UTF-8',
 				'OutputEncoding' => 'UTF-8',
 				'Developer'      => 'Friendica Developer Team',
+				'moz:SearchForm' => "$baseUrl/search",
 			],
-		], $xml);
+		], $xml, false, $namespaces);
 
 		/** @var DOMElement $parent */
 		$parent = $xml->getElementsByTagName('OpenSearchDescription')[0];
@@ -62,6 +64,7 @@ class OpenSearch extends BaseModule
 
 		XML::addElement($xml, $parent, 'Url', '', [
 			'type'     => 'text/html',
+			'method'   => 'get',
 			'template' => "$baseUrl/search?search={searchTerms}",
 		]);
 
